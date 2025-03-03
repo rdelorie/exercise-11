@@ -1,10 +1,20 @@
 ---
 project:
   title: "Exercise 11"
-  output-dir: docs
   author: Rachel Delorie
+  output-dir: docs
 
 Format:
   html:
   self-contained: true
 ---
+```{r}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(broom)
+library(purrr)
+library(visdat)
+```
+
