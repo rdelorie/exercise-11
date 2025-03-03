@@ -1,0 +1,10 @@
+---
+project:
+  title: "Exercise 11"
+  output-dir: docs
+  author: Rachel Delorie
+
+Format:
+  html:
+  self-contained: true
+---
