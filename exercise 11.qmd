@@ -13,8 +13,88 @@ library(readr)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(ggpubr)
+library(ggExtra)
 library(broom)
 library(purrr)
 library(visdat)
+library(recipes)
+```
+
+```{r}
+# Part 1: load airquality data and explore
+airquality <- airquality
+str(airquality) 
+drop_na(airquality)
+summary(airquality)
+
+# perform shapiro-wilk normality test
+shapiro.test(airquality$Wind)
+# W = 0.98575, p-value = 0.1178. The purpose of a Shapiro-Wilks test is to assess how normally distributed a population is. Null hypothesis: the data is normally distributed. Alternative hypothesis: the data does not follow a normal distribution. The data is normally distributed, as indicated by the p-value od 0.1178 because it is higher than 0.05. 
+```
+
+```{r}
+#Part 2: Data Transformation
+airquality <- airquality %>% 
+  mutate(Season = case_when(
+    Month %in% c(11, 12, 1) ~ "Winter",
+    Month %in% c(2, 3, 4) ~ "Spring",
+    Month %in% c(5, 6, 7) ~ "Summer",
+    Month %in% c(8, 9, 10) ~ "Fall" ))
+
+table(airquality$Season)
+# Fall = 61, Summer = 92
+```
+
+```{r}
+airquality_recipe <- recipe(~ Temp + Solar.R + Wind + Season, data = airquality) %>%
+  step_dummy(Season) %>%
+  prep() %>%
+  bake(new_data = NULL) %>% 
+  drop_na()
+
+head(airquality_recipe) #view data
+
+# it is neccesary to prep and bake the recipe because prep estimates and stores that transformation parameters, but doesn't actually do the transformation until bake() is put in.
+```
+
+```{r}
+# part 4: Lin Reg Model
+  model <- lm(Ozone ~ ., data = airquality)
+summary(model)
+# coefficients: the estimate of how much each predictor changes per each unit change.
+# R-squared: Shows how well the model explains variance in response variable. 0.6318 = 63% of variance is explained with model.
+# p-values: Tests overall significance of model. 2.2e-16 is very close to 0, so the model is very significant.
+```
+
+```{r}
+# part 5: Diagnostics
+# Remove rows with missing values
+airquality_clean <- na.omit(airquality)
+augmented_data <- augment(model, data = airquality_clean) #augment
+
+#histogram
+histogram_residuals <- ggplot(augmented_data, aes(x = .resid)) +     geom_histogram(binwidth = 2, fill = "blue", color = "black", alpha = 0.7) +
+ggtitle("Histogram of Residuals") +
+theme_minimal()
+print(histogram_residuals)
+
+#qqplot
+qqplot_residuals <- ggplot(augmented_data, aes(sample = .resid)) +
+  geom_qq() +
+  geom_qq_line() +
+  ggtitle("QQ Plot of Residuals") +
+  theme_minimal()
+print(qqplot_residuals)
+
+#combine plots
+ggarrange(histogram_residuals, qqplot_residuals)
+
+# scatter plot:
+ggscatter(augmented_data, x = "Ozone", y = ".fitted",
+          add = "reg.line", conf.int = TRUE,
+          cor.coef = TRUE, cor.method = "spearman",
+          ellipse = TRUE)
+# I think this is a very strong model because the R value is .84, which is extremely close to 1. 
 ```
 
