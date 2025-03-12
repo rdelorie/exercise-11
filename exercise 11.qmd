@@ -1,12 +1,10 @@
 ---
-project:
-  title: "Exercise 11"
-  author: Rachel Delorie
-  output-dir: docs
-
-Format:
-  html:
-  self-contained: true
+title: "Exercise 11"
+author: Rachel Delorie
+output-dir: docs
+format: html
+execute:
+  echo: true
 ---
 ```{r}
 library(readr)

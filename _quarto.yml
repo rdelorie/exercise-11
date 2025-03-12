@@ -1,5 +1,7 @@
-project:
-  title: "exercise 11"
-
+title: "exercise 11"
+Format:
+  html:
+  self-contained: true
+  
 editor: visual
 
